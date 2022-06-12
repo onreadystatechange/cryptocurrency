@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { SWRConfig } from "swr";
 
 import { Routers } from "./Routers";
@@ -12,8 +13,12 @@ export default function App() {
         provider: () => new Map(),
       }}
     >
-      <StatusBar style="auto" />
-      <Routers />
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1 }}>
+          <StatusBar style="auto" />
+          <Routers />
+        </SafeAreaView>
+      </SafeAreaProvider>
     </SWRConfig>
   );
 }
