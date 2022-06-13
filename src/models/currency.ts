@@ -15,20 +15,22 @@ type Status = {
   timestamp: string;
 };
 
-type marketData = {
+type MarketData = {
   percent_change_usd_last_24_hours: number;
   price_usd: number;
 };
 
 //only list used property
-type Currency = {
+export type Currency = {
   id: string;
   name: string;
   serial_id: number;
   slug: string;
   symbol: string;
   _internal_temp_agora_id: string;
-  metrics: marketData;
+  metrics: {
+    market_data: MarketData;
+  };
 };
 
 type Response<T> = {
@@ -37,10 +39,14 @@ type Response<T> = {
 };
 
 export function useGetCurrencyList() {
-  const [currencyList, setCurrencyList] = useState<Currency[] | undefined>([]);
-  const { data: payload, error } = useSWRNative<Response<Currency[]>>(
-    `${BASE_URL}/assets`
+  const [currencyList, setCurrencyList] = useState<Currency[] | undefined>(
+    undefined
   );
+  const {
+    data: payload,
+    error,
+    mutate,
+  } = useSWRNative<Response<Currency[]>>(`${BASE_URL}/assets`);
   const [state, dispatch] = useReducer(
     currencyReducer,
     initFavoriteCurrenciesState
@@ -53,8 +59,11 @@ export function useGetCurrencyList() {
   }, []);
 
   useEffect(() => {
-    const allCurrencies = payload?.data.map((currency) => currency.symbol);
-    dispatch(setAllCurrencies(allCurrencies || []));
+    const symbolNames = payload?.data.map((currency) => ({
+      symbol: currency.symbol,
+      name: currency.name,
+    }));
+    dispatch(setAllCurrencies(symbolNames || []));
   }, [payload?.data]);
 
   useEffect(() => {
@@ -63,14 +72,15 @@ export function useGetCurrencyList() {
     );
     setCurrencyList(filteredCurrency);
   }, [payload?.data, state.favoriteCurrencies]);
-
+  console.log(payload, state.favoriteCurrencies, error, ">>>>.");
   return {
     currencyList,
-    isLoading: !error && !currencyList?.length,
+    isLoading: !error && !payload,
     isError: error,
     setCurrencyList,
     dispatch,
     state,
+    mutate,
   };
 }
 

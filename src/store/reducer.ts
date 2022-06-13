@@ -1,40 +1,43 @@
-import { Action, State, CurrencyActions, FAVORITE_CURRENCIES } from "../store";
+import { clone } from "lodash";
+import { State, FAVORITE_CURRENCIES } from "./state";
+import { Action, CurrencyActions } from "./action";
 import { setStorage } from "../utils";
 
-export function currencyReducer(state: State, action: Action): State {
+export function currencyReducer(state: State, action: Action<any>): State {
   const { type, payload } = action;
 
   switch (type) {
     case CurrencyActions.InitCurrencies:
       return {
         ...state,
-        favoriteCurrencies: (payload as string[]) ?? state.favoriteCurrencies,
+        favoriteCurrencies: payload ?? clone(state.favoriteCurrencies),
       };
 
     case CurrencyActions.SetAllCurrencies:
       return {
         ...state,
-        allCurrencies: payload as string[],
+        symbolNames: payload,
       };
 
     case CurrencyActions.AddCurrency:
-      state.favoriteCurrencies.push(payload as string);
+      state.favoriteCurrencies.push(payload);
       setStorage(FAVORITE_CURRENCIES, state.favoriteCurrencies);
       return {
         ...state,
-        favoriteCurrencies: state.favoriteCurrencies,
+        favoriteCurrencies: clone(state.favoriteCurrencies),
       };
 
     case CurrencyActions.DeleteCurrency:
       const index = state.favoriteCurrencies.findIndex(
         (currency) => currency === payload
       );
-      const favoriteCurrenciesDel = state.favoriteCurrencies.splice(index, 0);
 
-      setStorage(FAVORITE_CURRENCIES, favoriteCurrenciesDel);
+      state.favoriteCurrencies.splice(index, 1);
+
+      setStorage(FAVORITE_CURRENCIES, state.favoriteCurrencies);
       return {
         ...state,
-        favoriteCurrencies: favoriteCurrenciesDel,
+        favoriteCurrencies: clone(state.favoriteCurrencies),
       };
 
     default:

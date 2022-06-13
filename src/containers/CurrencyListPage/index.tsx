@@ -1,35 +1,145 @@
-import { StyleSheet, Text, View, Button } from "react-native";
+import { useEffect } from "react";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { SwipeListView } from "react-native-swipe-list-view";
+import { floor } from "lodash";
 
 import { useGetCurrencyList } from "../../models";
-import {
-  initFavoriteCurrenciesState,
-  currencyReducer,
-  deleteCurrency,
-} from "../../store";
-import { getStorage } from "../../utils";
+import { deleteCurrency, addCurrency } from "../../store";
+import { Header, ListItem, Error } from "./components";
+import { images } from "../../utils";
 
 export function CurrencyListPage() {
-  const { currencyList, isLoading, isError, setCurrencyList, dispatch, state } =
-    useGetCurrencyList();
-  console.log(isLoading, currencyList, state);
+  const {
+    currencyList,
+    isLoading,
+    isError,
+    setCurrencyList,
+    dispatch,
+    state,
+    mutate,
+  } = useGetCurrencyList();
 
-  const testStorage = () => {
-    dispatch(deleteCurrency("test"));
+  if (isLoading) {
+    return (
+      <View style={container}>
+        <ActivityIndicator size="large" color="#385775" />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Error
+        errorText={isError.toString()}
+        resetErrorBoundary={() => mutate()}
+      />
+    );
+  }
+  const deleteRow = (symbol: string) => {
+    dispatch(deleteCurrency(symbol));
   };
 
   return (
-    <View style={styles.container}>
-      <Text>CurrencyListPage</Text>
-      <Button title="Press me" onPress={() => testStorage()} />
+    <View style={wrapper}>
+      <Header
+        title="CryptoTracker Pro"
+        avatar={require("../../../assets/avatar.png")}
+      />
+      <View style={list}>
+        <SwipeListView
+          useFlatList
+          data={currencyList}
+          swipeToOpenPercent={4}
+          renderItem={({ item: currency }, rowMap) => {
+            const props = {
+              name: currency.name,
+              symbol: currency.symbol,
+              metrics: {
+                market_data: {
+                  percent_change_usd_last_24_hours: floor(
+                    currency?.metrics?.market_data
+                      ?.percent_change_usd_last_24_hours,
+                    2
+                  ),
+                  price_usd: currency?.metrics?.market_data?.price_usd,
+                },
+              },
+              avatar: images[currency.symbol as keyof typeof images],
+            };
+            return <ListItem {...props} key={currency.id} />;
+          }}
+          renderHiddenItem={(data) => (
+            <TouchableOpacity
+              style={backRightBtn}
+              onPress={() => deleteRow(data.item.symbol)}
+            >
+              <Text style={deleteText}>Delete</Text>
+            </TouchableOpacity>
+          )}
+          disableRightSwipe
+          rightOpenValue={-100}
+          closeOnRowPress={true}
+          closeOnScroll={true}
+          closeOnRowBeginSwipe={true}
+          onRefresh={() => mutate()}
+          refreshing={isLoading}
+          ListFooterComponent={
+            <TouchableOpacity style={addBtn}>
+              <Text style={addText}>+ Add a Cryptocurrency</Text>
+            </TouchableOpacity>
+          }
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  list: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    flex: 1,
+  },
   container: {
     flex: 1,
+    justifyContent: "center",
     backgroundColor: "#fff",
+  },
+  wrapper: {
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  backRightBtn: {
     alignItems: "center",
     justifyContent: "center",
+    width: 100,
+    color: "#FFF",
+    backgroundColor: "#E4E8EB",
+    position: "absolute",
+    right: 2,
+    top: 0,
+    bottom: 0,
+    height: "100%",
+  },
+  deleteText: {
+    color: "#FFF",
+  },
+  addBtn: {
+    marginTop: 48,
+  },
+  addText: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#385775",
+    textAlign: "center",
   },
 });
+
+const { list, container, wrapper, backRightBtn, deleteText, addBtn, addText } =
+  styles;

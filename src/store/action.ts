@@ -1,3 +1,4 @@
+import { SymbolNames } from "./state";
 export const enum CurrencyActions {
   AddCurrency = "ADD_CURRENCY",
   DeleteCurrency = "DELETE_CURRENCY",
@@ -5,27 +6,29 @@ export const enum CurrencyActions {
   SetAllCurrencies = "SET_ALL_CURRENCIES",
 }
 
-export type Action = {
+export type Action<T> = {
   type: CurrencyActions;
-  payload: string | string[];
+  payload: T;
 };
 
-export const addCurrency = (payload: string): Action => ({
+export const addCurrency = (payload: string): Action<string> => ({
   type: CurrencyActions.AddCurrency,
   payload,
 });
 
-export const deleteCurrency = (payload: string): Action => ({
+export const deleteCurrency = (payload: string): Action<string> => ({
   type: CurrencyActions.DeleteCurrency,
   payload,
 });
 
-export const initCurrencies = (payload: string[]): Action => ({
+export const initCurrencies = (payload: string[]): Action<string[]> => ({
   type: CurrencyActions.InitCurrencies,
   payload,
 });
 
-export const setAllCurrencies = (payload: string[]): Action => ({
+export const setAllCurrencies = (
+  payload: SymbolNames[]
+): Action<SymbolNames[]> => ({
   type: CurrencyActions.SetAllCurrencies,
   payload,
 });
