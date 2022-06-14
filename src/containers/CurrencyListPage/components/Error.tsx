@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import { View, StyleSheet, Button, Text } from "react-native";
 
 type ErrorProps = {

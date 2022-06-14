@@ -1,4 +1,5 @@
 import { SymbolNames } from "./state";
+
 export const enum CurrencyActions {
   AddCurrency = "ADD_CURRENCY",
   DeleteCurrency = "DELETE_CURRENCY",

@@ -5,6 +5,8 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+import Toast from "react-native-toast-message";
+import { useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { SwipeListView } from "react-native-swipe-list-view";
@@ -13,7 +15,6 @@ import { floor } from "lodash";
 import { useGetCurrencyList } from "../../models";
 import { deleteCurrency } from "../../store";
 import { Header, ListItem, Error } from "./components";
-import { images } from "../../utils";
 import { RootStackParamList } from "../../navigation";
 
 type NavigationProps = StackNavigationProp<RootStackParamList>;
@@ -39,9 +40,18 @@ export function CurrencyListPage() {
       />
     );
   }
-  const deleteRow = (symbol: string) => {
-    dispatch(deleteCurrency(symbol));
-  };
+
+  const deleteRow = useCallback(
+    (symbol: string) => {
+      dispatch(deleteCurrency(symbol));
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Deleted successfully",
+      });
+    },
+    [dispatch, deleteCurrency]
+  );
 
   return (
     <View style={wrapper}>
@@ -68,7 +78,6 @@ export function CurrencyListPage() {
                   price_usd: currency?.metrics?.market_data?.price_usd,
                 },
               },
-              avatar: images[currency.symbol as keyof typeof images],
             };
             return <ListItem {...props} key={currency.id} />;
           }}

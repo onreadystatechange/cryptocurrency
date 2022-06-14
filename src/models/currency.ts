@@ -57,12 +57,18 @@ export function useGetCurrencyList() {
 
   useEffect(() => {
     if (Array.isArray(payload?.data)) {
-      const filteredCurrency = payload?.data.filter((currency) =>
-        state.favoriteCurrencies.includes(currency.symbol)
+      const filteredCurrency = payload?.data.filter(
+        (currency) =>
+          state.favoriteCurrencies.includes(currency.symbol) ||
+          state.favoriteCurrencies.includes(currency.name)
       );
       const symbolNames = payload?.data
         .filter(
-          (currency) => !state.favoriteCurrencies.includes(currency.symbol)
+          (currency) =>
+            !(
+              state.favoriteCurrencies.includes(currency.symbol) ||
+              state.favoriteCurrencies.includes(currency.name)
+            )
         )
         .map((currency) => ({
           symbol: currency.symbol,

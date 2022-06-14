@@ -1,4 +1,5 @@
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { SWRConfig } from "swr";
 
 import { Routers } from "./Routers";
@@ -15,6 +16,7 @@ export default function App() {
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }}>
           <Routers />
+          <Toast />
         </SafeAreaView>
       </SafeAreaProvider>
     </SWRConfig>

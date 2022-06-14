@@ -1,20 +1,34 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ImageSourcePropType,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, Image } from "react-native";
 
 import { Currency } from "../../../models";
 
-type ListItemProps = Partial<Currency> & {
-  avatar: string;
+type ListItemProps = Partial<Currency>;
+
+const images = {
+  BTC: require("../../../../assets/btc.png"),
+  ETH: require("../../../../assets/eth.png"),
+  USDT: require("../../../../assets/ltc.png"),
+  USDC: require("../../../../assets/xrp.png"),
+  BNB: require("../../../../assets/xrp.png"),
+  BUSD: require("../../../../assets/xrp.png"),
+  ADA: require("../../../../assets/xrp.png"),
+  XRP: require("../../../../assets/xrp.png"),
+  SOL: require("../../../../assets/xrp.png"),
+  DOGE: require("../../../../assets/xrp.png"),
+  DAI: require("../../../../assets/xrp.png"),
+  DOT: require("../../../../assets/xrp.png"),
+  WBTC: require("../../../../assets/xrp.png"),
+  TRX: require("../../../../assets/xrp.png"),
+  LEO: require("../../../../assets/xrp.png"),
+  AVAX: require("../../../../assets/xrp.png"),
+  SHIB: require("../../../../assets/xrp.png"),
+  FTT: require("../../../../assets/xrp.png"),
+  MATIC: require("../../../../assets/xrp.png"),
+  LTC: require("../../../../assets/xrp.png"),
 };
 
 export function ListItem(props: ListItemProps) {
-  const { name, avatar, symbol, metrics } = props;
+  const { name, symbol, metrics } = props;
   const isUp =
     (metrics?.market_data.percent_change_usd_last_24_hours as number) > 0;
   const iconUrl = isUp
@@ -23,7 +37,7 @@ export function ListItem(props: ListItemProps) {
   return (
     <View style={container}>
       <View style={leftWrapper}>
-        <Image source={{ uri: avatar }} style={image} />
+        <Image source={images[symbol as keyof typeof images]} style={image} />
         <View style={nameWrapper}>
           <Text style={nameText}>{name}</Text>
           <Text style={symbolText}>{symbol}</Text>

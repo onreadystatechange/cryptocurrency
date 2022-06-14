@@ -1,5 +1,7 @@
 import { StatusBar } from "expo-status-bar";
+import { debounce } from "lodash";
 import { StackNavigationProp } from "@react-navigation/stack";
+import Toast from "react-native-toast-message";
 import {
   StyleSheet,
   Text,
@@ -24,37 +26,43 @@ export function AddCurrencyPage() {
   const { state, dispatch } = useContext(CurrencyContext);
 
   const handleBlur = useCallback(() => {
-    const validateStatus = state.symbolNames.some(
-      (item) => item.name === text || item.symbol === text
-    );
-    setValidateSuccess(validateStatus);
     setIsFocus(false);
-  }, [text, setValidateSuccess, state.symbolNames, isFocus, setIsFocus]);
+  }, [setIsFocus]);
 
   const handleFocus = useCallback(() => {
     setIsFocus(true);
   }, [isFocus, setIsFocus]);
 
-  const navigation = useNavigation<NavigationProps>();
-  const backString = "< Back to list";
-
-  const addFn = useCallback(
-    (text) => {
-      dispatch(addCurrency(text));
+  const handleChange = useCallback(
+    (e) => {
+      onChangeText(e);
+      const validateStatus = state.symbolNames.some(
+        (item) => item.name === e || item.symbol === e
+      );
+      setValidateSuccess(validateStatus);
     },
-    [dispatch]
+    [onChangeText, state.symbolNames, setValidateSuccess]
   );
 
+  const addFn = useCallback(
+    debounce((text) => {
+      dispatch(addCurrency(text));
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Added successfully",
+      });
+      onChangeText("");
+      setValidateSuccess(false);
+    }, 200),
+    [dispatch, onChangeText, setValidateSuccess]
+  );
+
+  const navigation = useNavigation<NavigationProps>();
+  const backString = "< Back to list";
   const btnColor = validateSuccess ? "#385775" : "rgba(56, 87, 117, 0.2)";
   const inputBorderColor = useMemo(() => {
-    if (!validateSuccess && text) {
-      return "red";
-    }
-    if (isFocus) {
-      return "#FBD24D";
-    } else {
-      return "#B7C0C6";
-    }
+    return isFocus ? "#FBD24D" : "#B7C0C6";
   }, [isFocus, text, validateSuccess]);
 
   return (
@@ -67,7 +75,7 @@ export function AddCurrencyPage() {
         <Text style={addText}>Add a Cryptocurrency</Text>
         <TextInput
           style={[input, { borderColor: inputBorderColor }]}
-          onChangeText={onChangeText}
+          onChangeText={handleChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
           value={text}
