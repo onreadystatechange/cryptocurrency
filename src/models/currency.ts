@@ -16,7 +16,7 @@ type Status = {
 
 type MarketData = {
   percent_change_usd_last_24_hours: number;
-  price_usd: number;
+  price_usd: number | string;
 };
 
 //only list used property

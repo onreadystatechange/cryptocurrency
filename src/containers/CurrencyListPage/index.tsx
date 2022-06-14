@@ -16,6 +16,7 @@ import { useGetCurrencyList } from "../../models";
 import { deleteCurrency } from "../../store";
 import { Header, ListItem, Error } from "./components";
 import { RootStackParamList } from "../../navigation";
+import { numberToCurrency } from "../../utils";
 
 type NavigationProps = StackNavigationProp<RootStackParamList>;
 
@@ -76,7 +77,9 @@ export function CurrencyListPage() {
                     ?.percent_change_usd_last_24_hours,
                   2
                 ),
-                price_usd: currency?.metrics?.market_data?.price_usd,
+                price_usd: numberToCurrency(
+                  currency?.metrics?.market_data?.price_usd as number
+                ),
               },
             },
           };

@@ -45,7 +45,7 @@ export function ListItem(props: ListItemProps) {
       </View>
 
       <View style={metricsWrapper}>
-        <Text style={priceText}>{"$" + metrics?.market_data.price_usd}</Text>
+        <Text style={priceText}>{metrics?.market_data.price_usd}</Text>
         <View style={iconWrapper}>
           <Text
             style={[
