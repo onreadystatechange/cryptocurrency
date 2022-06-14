@@ -24,6 +24,18 @@ export function CurrencyListPage() {
     useGetCurrencyList();
   const navigation = useNavigation<NavigationProps>();
 
+  const deleteRow = useCallback(
+    (symbol: string) => {
+      dispatch(deleteCurrency(symbol));
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Deleted successfully",
+      });
+    },
+    [dispatch, deleteCurrency]
+  );
+
   if (isLoading) {
     return (
       <View style={container}>
@@ -41,71 +53,59 @@ export function CurrencyListPage() {
     );
   }
 
-  const deleteRow = useCallback(
-    (symbol: string) => {
-      dispatch(deleteCurrency(symbol));
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Deleted successfully",
-      });
-    },
-    [dispatch, deleteCurrency]
-  );
-
   return (
     <View style={wrapper}>
       <Header
         title="CryptoTracker Pro"
         avatar={require("../../../assets/avatar.png")}
       />
-      <View style={list}>
-        <SwipeListView
-          useFlatList
-          data={currencyList}
-          swipeToOpenPercent={4}
-          renderItem={({ item: currency }) => {
-            const props = {
-              name: currency.name,
-              symbol: currency.symbol,
-              metrics: {
-                market_data: {
-                  percent_change_usd_last_24_hours: floor(
-                    currency?.metrics?.market_data
-                      ?.percent_change_usd_last_24_hours,
-                    2
-                  ),
-                  price_usd: currency?.metrics?.market_data?.price_usd,
-                },
+
+      <SwipeListView
+        style={list}
+        useFlatList
+        data={currencyList}
+        swipeToOpenPercent={4}
+        renderItem={({ item: currency }) => {
+          const props = {
+            name: currency.name,
+            symbol: currency.symbol,
+            metrics: {
+              market_data: {
+                percent_change_usd_last_24_hours: floor(
+                  currency?.metrics?.market_data
+                    ?.percent_change_usd_last_24_hours,
+                  2
+                ),
+                price_usd: currency?.metrics?.market_data?.price_usd,
               },
-            };
-            return <ListItem {...props} key={currency.id} />;
-          }}
-          renderHiddenItem={(data) => (
-            <TouchableOpacity
-              style={backRightBtn}
-              onPress={() => deleteRow(data.item.symbol)}
-            >
-              <Text style={deleteText}>Delete</Text>
-            </TouchableOpacity>
-          )}
-          disableRightSwipe
-          rightOpenValue={-100}
-          closeOnRowPress={true}
-          closeOnScroll={true}
-          closeOnRowBeginSwipe={true}
-          onRefresh={() => mutate()}
-          refreshing={isLoading}
-          ListFooterComponent={
-            <TouchableOpacity
-              style={addBtn}
-              onPress={() => navigation.navigate("AddCurrencyPage")}
-            >
-              <Text style={addText}>+ Add a Cryptocurrency</Text>
-            </TouchableOpacity>
-          }
-        />
-      </View>
+            },
+          };
+          return <ListItem {...props} key={currency.id} />;
+        }}
+        renderHiddenItem={(data) => (
+          <TouchableOpacity
+            style={backRightBtn}
+            onPress={() => deleteRow(data.item.symbol)}
+          >
+            <Text style={deleteText}>Delete</Text>
+          </TouchableOpacity>
+        )}
+        disableRightSwipe
+        rightOpenValue={-100}
+        closeOnRowPress={true}
+        closeOnScroll={true}
+        closeOnRowBeginSwipe={true}
+        onRefresh={() => mutate()}
+        refreshing={isLoading}
+        ListFooterComponent={
+          <TouchableOpacity
+            style={addBtn}
+            onPress={() => navigation.navigate("AddCurrencyPage")}
+          >
+            <Text style={addText}>+ Add a Cryptocurrency</Text>
+          </TouchableOpacity>
+        }
+      />
     </View>
   );
 }
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   },
   addBtn: {
     marginTop: 48,
+    marginBottom: 48,
   },
   addText: {
     fontSize: 16,
