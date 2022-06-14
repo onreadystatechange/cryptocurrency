@@ -26,6 +26,7 @@ export function Routers() {
       }}
     >
       <NavigationContainer>
+        {/* this error is @types/react version cause,@types/react need higher version,but expo set version to ~17.0.21 */}
         <RootStack.Navigator
           screenOptions={{
             headerShown: false,
