@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  ActivityIndicator,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import Toast from "react-native-toast-message";
 import { useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -14,7 +8,8 @@ import { floor } from "lodash";
 
 import { useGetCurrencyList } from "../../models";
 import { deleteCurrency } from "../../store";
-import { Header, ListItem, Error } from "./components";
+import { Header, ListItem } from "./components";
+import { Loading, Error } from "../../components";
 import { RootStackParamList } from "../../navigation";
 import { numberToCurrency } from "../../utils";
 
@@ -37,12 +32,15 @@ export function CurrencyListPage() {
     [dispatch, deleteCurrency]
   );
 
+  const goToDetail = useCallback(
+    (symbol: string) => {
+      navigation.navigate("CurrencyInfoPage", { name: symbol });
+    },
+    [navigation]
+  );
+
   if (isLoading) {
-    return (
-      <View style={container}>
-        <ActivityIndicator size="large" color="#385775" />
-      </View>
-    );
+    return <Loading size="large" color="#385775" />;
   }
 
   if (isError) {
@@ -83,7 +81,16 @@ export function CurrencyListPage() {
               },
             },
           };
-          return <ListItem {...props} key={currency.id} />;
+          return (
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={(e) => {
+                goToDetail(currency.symbol);
+              }}
+            >
+              <ListItem {...props} key={currency.id} />
+            </TouchableOpacity>
+          );
         }}
         renderHiddenItem={(data) => (
           <TouchableOpacity
@@ -119,11 +126,6 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     flex: 1,
   },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
   wrapper: {
     backgroundColor: "#fff",
     flex: 1,
@@ -155,5 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const { list, container, wrapper, backRightBtn, deleteText, addBtn, addText } =
-  styles;
+const { list, wrapper, backRightBtn, deleteText, addBtn, addText } = styles;

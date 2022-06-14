@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import { debounce } from "lodash";
-import { StackNavigationProp } from "@react-navigation/stack";
 import Toast from "react-native-toast-message";
 import {
   StyleSheet,
@@ -12,18 +11,17 @@ import {
 import { useState, useCallback, useMemo, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 
-import { RootStackParamList } from "../../navigation";
+import { NavigationProps } from "../../navigation";
 import { addCurrency } from "../../store";
 import { CurrencyContext } from "../../context";
-
-type NavigationProps = StackNavigationProp<RootStackParamList>;
+import { GoBack } from "../../components";
 
 export function AddCurrencyPage() {
   const [text, onChangeText] = useState("");
   const [validateSuccess, setValidateSuccess] = useState(false);
   const [isFocus, setIsFocus] = useState(false);
-
   const { state, dispatch } = useContext(CurrencyContext);
+  const navigation = useNavigation<NavigationProps>();
 
   const handleBlur = useCallback(() => {
     setIsFocus(false);
@@ -54,11 +52,11 @@ export function AddCurrencyPage() {
       });
       onChangeText("");
       setValidateSuccess(false);
+      navigation.goBack();
     }, 200),
-    [dispatch, onChangeText, setValidateSuccess]
+    [dispatch, onChangeText, setValidateSuccess, navigation]
   );
 
-  const navigation = useNavigation<NavigationProps>();
   const backString = "< Back to list";
   const btnColor = validateSuccess ? "#385775" : "rgba(56, 87, 117, 0.2)";
   const inputBorderColor = useMemo(() => {
@@ -68,9 +66,8 @@ export function AddCurrencyPage() {
   return (
     <View style={container}>
       <StatusBar style="auto" />
-      <TouchableOpacity style={backBtn} onPress={() => navigation.goBack()}>
-        <Text style={backText}>{backString}</Text>
-      </TouchableOpacity>
+
+      <GoBack text={backString} />
       <View style={addWrapper}>
         <Text style={addText}>Add a Cryptocurrency</Text>
         <TextInput
@@ -133,17 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingLeft: 8,
   },
-  backBtn: {
-    top: 60,
-    position: "absolute",
-    left: 24,
-  },
-  backText: {
-    height: 24,
-    alignItems: "center",
-    color: "#385775",
-    fontSize: 16,
-  },
   btnStyle: {
     marginTop: 16,
     width: "100%",
@@ -172,8 +158,6 @@ const {
   addWrapper,
   addText,
   input,
-  backBtn,
-  backText,
   btnStyle,
   btnTextStyle,
   errorText,

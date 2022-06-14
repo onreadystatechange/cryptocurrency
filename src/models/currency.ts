@@ -90,7 +90,11 @@ export function useGetCurrencyList() {
 }
 
 export function useGetCurrencyInfo(currency: string) {
-  const { data: payload, error } = useSWRNative<Response<Currency>>(
+  const {
+    data: payload,
+    error,
+    mutate,
+  } = useSWRNative<Response<Currency>>(
     `${BASE_URL}/assets/${currency}/metrics`
   );
 
@@ -98,5 +102,6 @@ export function useGetCurrencyInfo(currency: string) {
     currencyInfo: payload?.data,
     isLoading: !error && !payload?.data,
     isError: error,
+    mutate,
   };
 }
