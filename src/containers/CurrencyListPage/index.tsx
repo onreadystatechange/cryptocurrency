@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   StyleSheet,
   ActivityIndicator,
@@ -6,24 +5,23 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { floor } from "lodash";
 
 import { useGetCurrencyList } from "../../models";
-import { deleteCurrency, addCurrency } from "../../store";
+import { deleteCurrency } from "../../store";
 import { Header, ListItem, Error } from "./components";
 import { images } from "../../utils";
+import { RootStackParamList } from "../../navigation";
+
+type NavigationProps = StackNavigationProp<RootStackParamList>;
 
 export function CurrencyListPage() {
-  const {
-    currencyList,
-    isLoading,
-    isError,
-    setCurrencyList,
-    dispatch,
-    state,
-    mutate,
-  } = useGetCurrencyList();
+  const { currencyList, isLoading, isError, dispatch, mutate } =
+    useGetCurrencyList();
+  const navigation = useNavigation<NavigationProps>();
 
   if (isLoading) {
     return (
@@ -56,7 +54,7 @@ export function CurrencyListPage() {
           useFlatList
           data={currencyList}
           swipeToOpenPercent={4}
-          renderItem={({ item: currency }, rowMap) => {
+          renderItem={({ item: currency }) => {
             const props = {
               name: currency.name,
               symbol: currency.symbol,
@@ -90,7 +88,10 @@ export function CurrencyListPage() {
           onRefresh={() => mutate()}
           refreshing={isLoading}
           ListFooterComponent={
-            <TouchableOpacity style={addBtn}>
+            <TouchableOpacity
+              style={addBtn}
+              onPress={() => navigation.navigate("AddCurrencyPage")}
+            >
               <Text style={addText}>+ Add a Cryptocurrency</Text>
             </TouchableOpacity>
           }

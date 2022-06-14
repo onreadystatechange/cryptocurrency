@@ -1,14 +1,13 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useContext, useEffect } from "react";
 
 import { useSWRNative, getStorage } from "../utils";
 import { BASE_URL } from "./baseUrl";
 import {
   initCurrencies,
   FAVORITE_CURRENCIES,
-  currencyReducer,
-  initFavoriteCurrenciesState,
   setAllCurrencies,
 } from "../store";
+import { CurrencyContext } from "../context";
 
 type Status = {
   elapsed: number;
@@ -47,10 +46,8 @@ export function useGetCurrencyList() {
     error,
     mutate,
   } = useSWRNative<Response<Currency[]>>(`${BASE_URL}/assets`);
-  const [state, dispatch] = useReducer(
-    currencyReducer,
-    initFavoriteCurrenciesState
-  );
+
+  const { state, dispatch } = useContext(CurrencyContext);
 
   useEffect(() => {
     getStorage(FAVORITE_CURRENCIES).then((initFavoriteCurrencies) =>
@@ -59,27 +56,29 @@ export function useGetCurrencyList() {
   }, []);
 
   useEffect(() => {
-    const symbolNames = payload?.data.map((currency) => ({
-      symbol: currency.symbol,
-      name: currency.name,
-    }));
-    dispatch(setAllCurrencies(symbolNames || []));
-  }, [payload?.data]);
-
-  useEffect(() => {
-    const filteredCurrency = payload?.data.filter((currency) =>
-      state.favoriteCurrencies.includes(currency.symbol)
-    );
-    setCurrencyList(filteredCurrency);
+    if (Array.isArray(payload?.data)) {
+      const filteredCurrency = payload?.data.filter((currency) =>
+        state.favoriteCurrencies.includes(currency.symbol)
+      );
+      const symbolNames = payload?.data
+        .filter(
+          (currency) => !state.favoriteCurrencies.includes(currency.symbol)
+        )
+        .map((currency) => ({
+          symbol: currency.symbol,
+          name: currency.name,
+        }));
+      setCurrencyList(filteredCurrency);
+      dispatch(setAllCurrencies(symbolNames || []));
+    }
   }, [payload?.data, state.favoriteCurrencies]);
-  console.log(payload, state.favoriteCurrencies, error, ">>>>.");
+
   return {
     currencyList,
-    isLoading: !error && !payload,
+    isLoading: !error && !currencyList,
     isError: error,
     setCurrencyList,
     dispatch,
-    state,
     mutate,
   };
 }

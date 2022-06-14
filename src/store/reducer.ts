@@ -33,7 +33,6 @@ export function currencyReducer(state: State, action: Action<any>): State {
       );
 
       state.favoriteCurrencies.splice(index, 1);
-
       setStorage(FAVORITE_CURRENCIES, state.favoriteCurrencies);
       return {
         ...state,
